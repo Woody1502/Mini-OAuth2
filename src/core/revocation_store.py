@@ -17,13 +17,17 @@ class RevocationStore:
         with open(self.path, 'a') as f:
             f.write(json.dumps({"type": "refresh", "refresh_id": refresh_id, "exp": exp}) + '\n')
 
-
     def is_refresh_revoked(self, refresh_id: str) -> bool:
         for record in self._read_records():
             if record["type"] == "refresh" and record["refresh_id"] == refresh_id:
                 return True
         return False
 
+    def is_access_revoked(self, jti: str) -> bool:
+        for record in self._read_records():
+            if record["type"] == "access" and record["jti"] == jti:
+                return True
+        return False
 
     def _read_records(self) -> list[dict]:
         records = []
@@ -33,9 +37,3 @@ class RevocationStore:
                 if line:
                     records.append(json.loads(line))
         return records
-
-    def is_access_revoked(self, jti: str) -> bool:
-        for record in self._read_records():
-            if record["type"] == "access" and record["jti"] == jti:
-                return True
-        return False

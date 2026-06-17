@@ -1,7 +1,7 @@
+import json
 import logging
 import os
 import secrets
-import json
 
 from src.core.logging_config import configure_cli_logging
 
@@ -19,6 +19,7 @@ def main() -> None:
             json.dump(data, f, indent=2)
         os.chmod(config, 0o600)
     logger.info("новый секрет: %s", secret)
+
 
 if __name__ == "__main__":
     main()

@@ -11,6 +11,7 @@ class UserRepoFile:
         for record in data:
             if record['username'] == username:
                 return record
+
     def find_by_user_id(self, user_id: str) -> dict | None:
         with open(self.path) as f:
             data = json.load(f)
@@ -30,11 +31,11 @@ class ClientRepoFile:
             if record['client_id'] == client_id:
                 return record
 
+
 class RoleRepoFile:
     def __init__(self, path: str):
         self.path = path
 
     def load(self) -> dict:
         with open(self.path) as f:
-            data = json.load(f)
-        return data
+            return json.load(f)

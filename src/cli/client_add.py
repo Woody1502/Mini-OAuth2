@@ -2,8 +2,8 @@ import argparse
 import json
 import logging
 
-from src.core.logging_config import configure_cli_logging
 from src.constants import ALL_GRANTS
+from src.core.logging_config import configure_cli_logging
 
 configure_cli_logging()
 logger = logging.getLogger(__name__)

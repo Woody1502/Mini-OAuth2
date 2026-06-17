@@ -1,17 +1,19 @@
 import logging
-
 from http import HTTPStatus
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from src.resource_server.schemas import PaymentsResponse, PaymentCreatedResponse
-from src.core.logging_config import configure_logging
-from src.resource_server.config import RSConfig
-from src.resource_server.middleware import AuthMiddleware, AuthError
-from src.resource_server.policy import PolicyEngine, ForbiddenError
+
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from src.core.clock import Clock
+from src.core.logging_config import configure_logging
 from src.core.revocation_store import RevocationStore
 from src.core.signer import SignerHS256
 from src.core.token_codec import TokenCodec
+from src.resource_server.config import RSConfig
+from src.resource_server.middleware import AuthError, AuthMiddleware
+from src.resource_server.policy import ForbiddenError, PolicyEngine
+from src.resource_server.schemas import (PaymentCreatedResponse,
+                                         PaymentsResponse)
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -28,7 +30,6 @@ auth_middleware = AuthMiddleware(
 )
 
 bearer_scheme = HTTPBearer()
-
 
 
 def get_payload(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:

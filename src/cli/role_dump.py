@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 
 from src.core.logging_config import configure_cli_logging
 

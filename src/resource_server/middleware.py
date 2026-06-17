@@ -1,5 +1,6 @@
 from src.core.exceptions import InvalidSignatureError
 
+
 class AuthError(Exception):
     pass
 

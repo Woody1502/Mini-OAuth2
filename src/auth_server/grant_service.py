@@ -1,20 +1,5 @@
 import logging
-from src.auth_server.utils import build_payload, token_response
 
-logger = logging.getLogger(__name__)
-from src.constants import (
-    GRANT_PASSWORD,
-    GRANT_CLIENT_CREDENTIALS,
-    GRANT_REFRESH_TOKEN,
-    SECONDS_PER_DAY,
-)
-from src.core.scope_matcher import ScopeMatcher
-from src.core.exceptions import (
-    InvalidSignatureError,
-    RefreshTokenNotFoundError,
-    RefreshTokenAlreadyRotatedError,
-    RefreshTokenExpiredError,
-)
 from src.auth_server.exceptions import (
     AccessDeniedError,
     InvalidClientError,
@@ -22,6 +7,22 @@ from src.auth_server.exceptions import (
     TokenReuseError,
     UnauthorizedClientError,
 )
+from src.auth_server.utils import build_payload, token_response
+from src.constants import (
+    GRANT_CLIENT_CREDENTIALS,
+    GRANT_PASSWORD,
+    GRANT_REFRESH_TOKEN,
+    SECONDS_PER_DAY,
+)
+from src.core.exceptions import (
+    InvalidSignatureError,
+    RefreshTokenAlreadyRotatedError,
+    RefreshTokenExpiredError,
+    RefreshTokenNotFoundError,
+)
+from src.core.scope_matcher import ScopeMatcher
+
+logger = logging.getLogger(__name__)
 
 
 class GrantService:
@@ -58,7 +59,7 @@ class GrantService:
         return client
 
     def password_grant(self, username: str, password: str, client_id: str,
-                        client_secret: str, requested_scopes: list[str]) -> dict:
+                       client_secret: str, requested_scopes: list[str]) -> dict:
         """Выдаём access + refresh токены по логину и паролю пользователя"""
         client = self._verify_client(client_id, client_secret, GRANT_PASSWORD)
         user = self.user_repo.find_by_username(username)
@@ -74,14 +75,15 @@ class GrantService:
         scope_str = " ".join(final_scopes)
         payload = build_payload(self.config, user["user_id"], sorted(final_scopes), client_id, user["roles"], now)
         access_token = self._issue_access_token(payload)
-        refresh_token = self.refresh_store.create(user["user_id"], client_id, now + self.config.refresh_ttl_days * SECONDS_PER_DAY)
+        refresh_exp = now + self.config.refresh_ttl_days * SECONDS_PER_DAY
+        refresh_token = self.refresh_store.create(user["user_id"], client_id, refresh_exp)
         logger.info("password grant: user=%s client=%s scope=%s", username, client_id, scope_str)
         if self.metrics:
             self.metrics.record("token_issued", grant_type="password", sub=user["user_id"], client=client_id)
         return token_response(access_token, self.config.access_ttl_sec, scope_str, refresh_token)
 
     def client_credentials_grant(self, client_id: str, client_secret: str,
-                                   requested_scopes: list[str]) -> dict:
+                                 requested_scopes: list[str]) -> dict:
         """Выдаём access-токен для клиента"""
         client = self._verify_client(client_id, client_secret, GRANT_CLIENT_CREDENTIALS)
         now = self.clock.now()
@@ -95,7 +97,7 @@ class GrantService:
         return token_response(access_token, self.config.access_ttl_sec, scope_str)
 
     def refresh_grant(self, refresh_token: str, client_id: str,
-                       client_secret: str) -> dict:
+                      client_secret: str) -> dict:
         """Ротируем refresh-токен и выдаём новую пару access + refresh"""
         client = self._verify_client(client_id, client_secret, GRANT_REFRESH_TOKEN)
         old_record = self.refresh_store.get(refresh_token)
@@ -110,7 +112,9 @@ class GrantService:
                 refresh_token, old_record["user_id"], client_id, new_exp
             )
         except RefreshTokenAlreadyRotatedError as e:
-            logger.warning("refresh token reuse detected (possible theft): token=%s client=%s", refresh_token, client_id)
+            logger.warning(
+                "refresh token reuse detected (possible theft): token=%s client=%s", refresh_token, client_id
+            )
             raise TokenReuseError(str(e))
         except (RefreshTokenNotFoundError, RefreshTokenExpiredError) as e:
             raise InvalidGrantError(str(e))
@@ -118,7 +122,9 @@ class GrantService:
         role_scopes = ScopeMatcher.expand_roles(new_user["roles"], self.role_repo.load())
         final_scopes = ScopeMatcher.intersect(list(role_scopes), set(client["allowed_scopes"]))
         scope_str = " ".join(final_scopes)
-        payload = build_payload(self.config, old_record["user_id"], sorted(final_scopes), client_id, new_user["roles"], now)
+        payload = build_payload(
+            self.config, old_record["user_id"], sorted(final_scopes), client_id, new_user["roles"], now
+        )
         access_token = self._issue_access_token(payload)
         logger.info("refresh grant: user=%s client=%s scope=%s", old_record["user_id"], client_id, scope_str)
         if self.metrics:

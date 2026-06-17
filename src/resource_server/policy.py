@@ -8,4 +8,3 @@ class PolicyEngine:
         scopes = token_payload["scopes"]
         if "*" not in scopes and required_scope not in scopes:
             raise ForbiddenError('Scope not allowed')
-

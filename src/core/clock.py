@@ -1,5 +1,6 @@
 import time
 
+
 class Clock:
 
     def __init__(self, skew_sec: int = 0):

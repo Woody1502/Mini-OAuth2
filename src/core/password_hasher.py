@@ -1,8 +1,10 @@
-import os
-import hashlib
 import base64
+import hashlib
 import hmac
+import os
+
 from src.constants import PBKDF2_DEFAULT_ITERATIONS
+
 
 class PasswordHasher:
     def __init__(self, iterations: int = PBKDF2_DEFAULT_ITERATIONS):

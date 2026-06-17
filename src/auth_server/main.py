@@ -1,33 +1,27 @@
 import logging
-
 from http import HTTPStatus
-from src.core.logging_config import configure_logging
-from src.core.metrics import MetricsStore
-
 
 from fastapi import FastAPI, HTTPException
-from src.auth_server.config import AuthConfig
-from src.auth_server.exceptions import (
-    AccessDeniedError,
-    InvalidClientError,
-    InvalidGrantError,
-    TokenReuseError,
-    UnauthorizedClientError,
-    UnsupportedGrantTypeError,
-)
-from src.auth_server.grant_service import GrantService
-from src.auth_server.schemas import (
-    TokenRequest, RefreshRequest, RevokeRequest, IntrospectRequest,
-    TokenResponse, WellKnownResponse,
-)
-from src.constants import GRANT_PASSWORD, GRANT_CLIENT_CREDENTIALS
 
-from src.auth_server.repositories import UserRepoFile, ClientRepoFile, RoleRepoFile
+from src.auth_server.config import AuthConfig
+from src.auth_server.exceptions import (AccessDeniedError, InvalidClientError,
+                                        InvalidGrantError, TokenReuseError,
+                                        UnauthorizedClientError,
+                                        UnsupportedGrantTypeError)
+from src.auth_server.grant_service import GrantService
+from src.auth_server.repositories import (ClientRepoFile, RoleRepoFile,
+                                          UserRepoFile)
+from src.auth_server.schemas import (IntrospectRequest, RefreshRequest,
+                                     RevokeRequest, TokenRequest,
+                                     TokenResponse, WellKnownResponse)
+from src.constants import GRANT_CLIENT_CREDENTIALS, GRANT_PASSWORD
 from src.core.clock import Clock
 from src.core.jti_store import JtiStore
+from src.core.logging_config import configure_logging
+from src.core.metrics import MetricsStore
 from src.core.password_hasher import PasswordHasher
-from src.core.revocation_store import RevocationStore
 from src.core.refresh_store import RefreshStore
+from src.core.revocation_store import RevocationStore
 from src.core.signer import SignerHS256
 from src.core.token_codec import TokenCodec
 
@@ -53,8 +47,7 @@ grant_service = GrantService(
 )
 
 
-@app.post("/token", response_model=TokenResponse,
-response_model_exclude_none=True)
+@app.post("/token", response_model=TokenResponse, response_model_exclude_none=True)
 def token(req: TokenRequest):
     """Выдать access-токен. Поддерживает `password` и `client_credentials`."""
     try:
@@ -87,7 +80,7 @@ def token(req: TokenRequest):
 
 @app.post("/token/refresh", response_model=TokenResponse)
 def token_refresh(req: RefreshRequest):
-    """Ротировать refresh-токен и получить новую пару `access + refresh`. Старый `refresh` становится недействительным."""
+    """Ротировать refresh-токен и получить новую пару access + refresh. Старый refresh становится недействительным."""
     try:
         return grant_service.refresh_grant(req.refresh_token, req.client_id, req.client_secret)
     except InvalidClientError as e:
