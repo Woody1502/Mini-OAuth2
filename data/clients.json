@@ -1,0 +1,31 @@
+[
+  {
+    "client_id": "cli-001",
+    "client_secret": "secret",
+    "allowed_grants": [
+      "password",
+      "client_credentials",
+      "refresh_token"
+    ],
+    "allowed_scopes": [
+      "payments:read",
+      "payments:write",
+      "users:read"
+    ],
+    "aud": "payments-api"
+  },
+  {
+    "client_id": "cli-002",
+    "client_secret": "secret2",
+    "allowed_grants": [
+      "password",
+      "client_credentials",
+      "refresh_token"
+    ],
+    "allowed_scopes": [
+      "payments:read",
+      "payments:write"
+    ],
+    "aud": "payments-api"
+  }
+]

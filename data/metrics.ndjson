@@ -1,0 +1,12 @@
+{"ts": 1781670751, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781670858, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781670900, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781671023, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781671853, "event": "token_revoked", "type": "access", "jti": "8a1439d1-e42b-40c0-8271-29ece9eaea8a"}
+{"ts": 1781672101, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781673307, "event": "token_issued", "grant_type": "client_credentials", "sub": "cli-001"}
+{"ts": 1781673366, "event": "token_revoked", "type": "access", "jti": "3b936b91-8e38-4dba-bace-2316f1ae03ed"}
+{"ts": 1781673379, "event": "token_issued", "grant_type": "client_credentials", "sub": "cli-001"}
+{"ts": 1781673469, "event": "token_issued", "grant_type": "client_credentials", "sub": "cli-001"}
+{"ts": 1781673487, "event": "token_issued", "grant_type": "password", "sub": "u-100", "client": "cli-001"}
+{"ts": 1781673520, "event": "token_issued", "grant_type": "refresh_token", "sub": "u-100", "client": "cli-001"}

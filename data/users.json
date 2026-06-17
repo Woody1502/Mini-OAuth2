@@ -1,0 +1,21 @@
+[
+  {
+    "user_id": "u-100",
+    "username": "alice",
+    "password_hash": "pbkdf2_sha256$200000$V_ro17pdHl5H8OKV2aRBLw==$2F4r5-Q7aqV409jwBpX1vLKaURDR9v5H-BEzruN_EUc=",
+    "roles": [
+      "manager",
+      "viewer"
+    ],
+    "status": "active"
+  },
+  {
+    "user_id": "u-72a34f19",
+    "username": "alex",
+    "password_hash": "pbkdf2_sha256$200000$YlVLslAqMJ2d4Sa-upFNGA==$HZZlVU2TJc7yE0OntflZmFWQcPnPj6evK-QGQXNU3FU=",
+    "roles": [
+      "viewer"
+    ],
+    "status": "active"
+  }
+]

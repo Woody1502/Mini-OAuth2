@@ -1,0 +1,5 @@
+{
+  "admin": {"scopes": ["*"]},
+  "manager": {"scopes": ["payments:read", "payments:write"]},
+  "viewer": {"scopes": ["payments:read"]}
+}

@@ -1,0 +1,7 @@
+{
+  "issuer": "mini-auth",
+  "aud": "payments-api",
+  "clock_skew_sec": 30,
+  "auth_secret": "WvivCwpmH2Gn2t3w4zKJneYvrNS_EFwhUTooh40yiNw",
+  "data_dir": "data"
+}
