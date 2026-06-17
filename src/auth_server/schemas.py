@@ -34,25 +34,6 @@ class TokenResponse(BaseModel):
     refresh_token: str | None = None
 
 
-class IntrospectActiveResponse(BaseModel):
-    active: bool
-    typ: str
-    alg: str
-    iss: str
-    aud: str
-    sub: str
-    client_id: str
-    scopes: list[str]
-    roles: list[str]
-    jti: str
-    iat: int
-    exp: int
-
-
-class IntrospectInactiveResponse(BaseModel):
-    active: bool
-
-
 class WellKnownResponse(BaseModel):
     issuer: str
     aud: str
