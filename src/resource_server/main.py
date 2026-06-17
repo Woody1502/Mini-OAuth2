@@ -12,8 +12,7 @@ from src.core.token_codec import TokenCodec
 from src.resource_server.config import RSConfig
 from src.resource_server.middleware import AuthError, AuthMiddleware
 from src.resource_server.policy import ForbiddenError, PolicyEngine
-from src.resource_server.schemas import (PaymentCreatedResponse,
-                                         PaymentsResponse)
+from src.resource_server.schemas import PaymentCreatedResponse, PaymentsResponse
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -42,26 +41,25 @@ def get_payload(credentials: HTTPAuthorizationCredentials = Depends(bearer_schem
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=str(e))
 
 
-def require_scope(scope: str):
-    def dependency(payload: dict = Depends(get_payload)):
-        try:
-            PolicyEngine.require_scope(payload, scope)
-        except ForbiddenError:
-            logger.warning("forbidden: sub=%s scope=%s", payload.get("sub"), scope)
-            raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Scope not allowed")
-        return payload
-    return dependency
-
-
 @app.get("/api/payments", response_model=PaymentsResponse)
-def get_payments(payload: dict = Depends(require_scope("payments:read"))):
+def get_payments(payload: dict = Depends(get_payload)):
     """Получить список платежей. Требует scope `payments:read`."""
+    try:
+        PolicyEngine.require_scope(payload, "payments:read")
+    except ForbiddenError:
+        logger.warning("forbidden: sub=%s scope=payments:read", payload.get("sub"))
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Scope not allowed")
     logger.info("payments:read granted: sub=%s", payload["sub"])
     return {"payments": [], "sub": payload["sub"]}
 
 
 @app.post("/api/payments", response_model=PaymentCreatedResponse)
-def create_payment(payload: dict = Depends(require_scope("payments:write"))):
+def create_payment(payload: dict = Depends(get_payload)):
     """Создать платёж. Требует scope `payments:write`."""
+    try:
+        PolicyEngine.require_scope(payload, "payments:write")
+    except ForbiddenError:
+        logger.warning("forbidden: sub=%s scope=payments:write", payload.get("sub"))
+        raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Scope not allowed")
     logger.info("payments:write granted: sub=%s", payload["sub"])
     return {"status": "created", "sub": payload["sub"]}
