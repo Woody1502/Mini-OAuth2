@@ -41,6 +41,11 @@ class GrantService:
         self.clock = clock
         self.metrics = metrics
 
+    def _issue_access_token(self, payload: dict) -> str:
+        token = self.token_codec.encode(payload)
+        self.jti_store.record(payload["jti"])
+        return token
+
     def _verify_client(self, client_id: str, client_secret: str, required_grant: str) -> dict:
         """Находим клиента, проверяем секрет и разрешённый grant type"""
         client = self.client_repo.find_by_id(client_id)
@@ -68,8 +73,7 @@ class GrantService:
         now = self.clock.now()
         scope_str = " ".join(final_scopes)
         payload = build_payload(self.config, user["user_id"], sorted(final_scopes), client_id, user["roles"], now)
-        access_token = self.token_codec.encode(payload)
-        self.jti_store.record(payload["jti"])
+        access_token = self._issue_access_token(payload)
         refresh_token = self.refresh_store.create(user["user_id"], client_id, now + self.config.refresh_ttl_days * SECONDS_PER_DAY)
         logger.info("password grant: user=%s client=%s scope=%s", username, client_id, scope_str)
         if self.metrics:
@@ -84,8 +88,7 @@ class GrantService:
         scopes = ScopeMatcher.intersect(requested_scopes, set(client["allowed_scopes"]))
         scope_str = " ".join(scopes)
         payload = build_payload(self.config, client_id, sorted(scopes), client_id, [], now)
-        access_token = self.token_codec.encode(payload)
-        self.jti_store.record(payload["jti"])
+        access_token = self._issue_access_token(payload)
         logger.info("client_credentials grant: client=%s scope=%s", client_id, scope_str)
         if self.metrics:
             self.metrics.record("token_issued", grant_type="client_credentials", sub=client_id)
@@ -116,8 +119,7 @@ class GrantService:
         final_scopes = ScopeMatcher.intersect(list(role_scopes), set(client["allowed_scopes"]))
         scope_str = " ".join(final_scopes)
         payload = build_payload(self.config, old_record["user_id"], sorted(final_scopes), client_id, new_user["roles"], now)
-        access_token = self.token_codec.encode(payload)
-        self.jti_store.record(payload["jti"])
+        access_token = self._issue_access_token(payload)
         logger.info("refresh grant: user=%s client=%s scope=%s", old_record["user_id"], client_id, scope_str)
         if self.metrics:
             self.metrics.record("token_issued", grant_type="refresh_token", sub=old_record["user_id"], client=client_id)
